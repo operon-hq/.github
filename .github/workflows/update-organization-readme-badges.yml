@@ -1,0 +1,114 @@
+name: Update Organization Readme Badges
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # runs daily at 07:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-badges:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Generate the token FIRST so that the checkout can use it
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      # 2. Checkout configured with the GitHub App token
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: organization-readme-badge-generator
+        id: organization-readme-badge-generator
+        uses: joshjohanning/organization-readme-badge-generator@v2
+        with:
+          organization: ${{ github.repository_owner }}
+          token: ${{ steps.app-token.outputs.token }}
+          color: blue
+          label_color: 333
+
+      - name: Write to job summary
+        run: |
+          echo "${{ steps.organization-readme-badge-generator.outputs.badges }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Add to README
+        run: |
+          readme="profile/README.md"
+
+          if [ ! -f "$readme" ]; then
+            echo "Error: The file $readme was not found!"
+            exit 1
+          fi
+
+          # 1. Limpa quebras de linha do Windows (\r)
+          sed -i 's/\r$//' $readme
+
+          # 2. Obtém as badges geradas
+          replacement="${{ steps.organization-readme-badge-generator.outputs.badges }}"
+
+          # 3. Reconstrói o ficheiro injetando as badges entre os marcadores
+          awk -v repl="$replacement" '
+            /<!-- start organization badges -->/ { print; print repl; flag=1; next }
+            /<!-- end organization badges -->/ { flag=0 }
+            !flag
+          ' "$readme" > temp_readme.md
+
+          mv temp_readme.md "$readme"
+
+          # 4. Configura o Git, faz o commit e envia SEMPRE
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@://github.com'
+          git add $readme
+
+          # O '|| true' evita que a Action falhe caso o Git ache que não há mudanças textuais
+          git commit -m "docs: update organization readme badges" || true
+          git push
+
+
+      # - name: Add to README
+      #   run: |
+      #     # ADJUST HERE: If the action runs in the '.github' repo, use just 'README.md'
+      #     readme="README.md"
+
+      #     if [ ! -f "$readme" ]; then
+      #       echo "Error: The file $readme was not found!"
+      #       exit 1
+      #     fi
+
+      #     # get SHA256 before
+      #     beforeHash=$(sha256sum $readme | awk '{ print $1 }')
+
+      #     # Define start and end markers
+      #     startMarker="<!-- start organization badges -->"
+      #     endMarker="<!-- end organization badges -->"
+
+      #     replacement="${{ steps.organization-readme-badge-generator.outputs.badges }}"
+
+      #     # Escape special characters in the replacement text
+      #     replacementEscaped=$(printf '%s\n' "$replacement" | perl -pe 's/([\\\/\$\(\)@])/\\$1/g')
+
+      #     # Use perl to replace the text between the markers
+      #     perl -i -pe "BEGIN{undef $/;} s/\Q$startMarker\E.*?\Q$endMarker\E/$startMarker\n$replacementEscaped\n$endMarker/smg" $readme
+
+      #     # get SHA256 after
+      #     afterHash=$(sha256sum $readme | awk '{ print $1 }')
+
+      #     # Compare the hashes and commit if required
+      #     if [ "$afterHash" = "$beforeHash" ]; then
+      #       echo "The hashes are equal - exiting script"
+      #       exit 0
+      #     else
+      #       git config --global user.name 'github-actions[bot]'
+      #       git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      #       git add $readme
+      #       git commit -m "docs: update organization readme badges"
+      #       git push
+      #     fi

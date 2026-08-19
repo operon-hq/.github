@@ -1,0 +1,48 @@
+name: .NET Core CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Check out the repository
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    # 2. Setup .NET SDK based on global.json
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        global-json-file: global.json
+        dotnet-version: |
+          9.0.x
+          10.0.x
+        cache: true # Enables automatic caching for NuGet packages (speeds up subsequent steps)
+
+    # 3. Restore project dependencies
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # 4. Build the project in Release mode (without restoring again)
+    - name: Build project
+      run: dotnet build --configuration Release --no-restore
+
+    # 5. Run unit tests (global.json already directs TUnit through MTP)
+    - name: Test project
+      run: dotnet test --configuration Release --no-build --verbosity normal --coverage
+
+    # 6. Collect and upload TUnit HTML/JSON test reports as artifacts
+    - name: Upload TUnit Test Reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: tunit-all-test-reports
+        path: "**/TestResults/" # Captura as subpastas de todos os projetos de teste
+        retention-days: 2

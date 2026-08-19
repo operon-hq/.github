@@ -1,4 +1,10 @@
-# Operon Software
+# Operon HQ Software
+
+---
+
+<!-- start organization badges -->
+<!-- end organization badges -->
+
 
 Operon Software is an enterprise-grade ecosystem of packages designed for infrastructure, automation, and data engineering (ETL). Focused on the B2B market, the startup positions itself as a critical, robust, and highly innovative solution for IT companies through four brand pillars:
 
@@ -75,3 +81,38 @@ The Operon Software ecosystem operates under a **Zero-Trust, Event-Driven Orches
    * **Trigger:** The Scheduler dispatches the execution matrix.
    * **Action:** `Operon ETL` provisions isolated workers. It extracts raw data, transforms it via in-memory stream buffers with strict schema validation, and commits atomic transactions directly into your target data sinks (Data Lakes, Warehouses, or Cloud Databases).
    * **Data Output:** Fully processed, validated target datasets alongside localized execution logs synced back to the system framework.
+
+### Topics
+
+🌐 Core Business & Startup
+
+  * **startup**
+  * **b2b**
+  * **enterprise-software**
+  * **next-generation**
+
+🏗️ Architecture & Infrastructure
+  
+  * **infrastructure**
+  * **automation**
+  * **orchestration**
+  * **event-driven**
+  * **zero-trust**
+
+📊 Data Engineering (ETL)
+  
+  * **data-engineering**
+  * **etl**
+  * **data-pipeline**
+  * **stream-processing**
+
+🔧 Package Management & Patterns
+  
+  * **ecosystem**
+  * **package-suite**
+  * **design-patterns**
+  * **scheduler**
+  * **cron-engine**
+
+---
+✨ This is an organization from [@smarcioaugusto](https://github.com/smarcioaugusto)

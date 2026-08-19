@@ -1,0 +1,9 @@
+{
+  "name": ".NET Core CI Template",
+  "description": "Default organization workflow with native support for .NET 10, global.json, and TUnit test reports.",
+  "iconName": "dotnet",
+  "categories": [
+    "Language",
+    "Continuous Integration"
+  ]
+}

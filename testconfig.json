@@ -1,0 +1,12 @@
+{
+  "TUnit": {
+    "Reports": {
+      "Html": {
+        "Enabled": true
+      },
+      "Json": {
+        "Enabled": true
+      }
+    }
+  }
+}
