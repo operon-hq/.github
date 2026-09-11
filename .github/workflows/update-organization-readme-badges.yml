@@ -27,88 +27,61 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
 
       - name: organization-readme-badge-generator
-        id: organization-readme-badge-generator
-        uses: joshjohanning/organization-readme-badge-generator@v2
+        id: badges
+        uses: operon-hq/action-organization-readme-badges@v1.0.0-alpha
         with:
-          organization: ${{ github.repository_owner }}
-          token: ${{ steps.app-token.outputs.token }}
-          color: blue
-          label_color: 333
+          badges: repositories,prs-created,prs-merged,merge-rate,open-issues,releases,contributors,stars,forks,default-branch-status,updated
+          section_title: Organization metrics
+      - if: steps.badges.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add profile/README.md
+          git commit -m 'docs: refresh metrics'
+          git push
+
+      # - name: organization-readme-badge-generator
+      #   id: organization-readme-badge-generator
+      #   uses: joshjohanning/organization-readme-badge-generator@v2
+      #   with:
+      #     organization: ${{ github.repository_owner }}
+      #     token: ${{ steps.app-token.outputs.token }}
+      #     color: blue
+      #     label_color: 333
 
       - name: Write to job summary
         run: |
           echo "${{ steps.organization-readme-badge-generator.outputs.badges }}" >> $GITHUB_STEP_SUMMARY
 
-      - name: Add to README
-        run: |
-          readme="profile/README.md"
-
-          if [ ! -f "$readme" ]; then
-            echo "Error: The file $readme was not found!"
-            exit 1
-          fi
-
-          # 1. Limpa quebras de linha do Windows (\r)
-          sed -i 's/\r$//' $readme
-
-          # 2. Obtém as badges geradas
-          replacement="${{ steps.organization-readme-badge-generator.outputs.badges }}"
-
-          # 3. Reconstrói o ficheiro injetando as badges entre os marcadores
-          awk -v repl="$replacement" '
-            /<!-- start organization badges -->/ { print; print repl; flag=1; next }
-            /<!-- end organization badges -->/ { flag=0 }
-            !flag
-          ' "$readme" > temp_readme.md
-
-          mv temp_readme.md "$readme"
-
-          # 4. Configura o Git, faz o commit e envia SEMPRE
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@://github.com'
-          git add $readme
-
-          # O '|| true' evita que a Action falhe caso o Git ache que não há mudanças textuais
-          git commit -m "docs: update organization readme badges" || true
-          git push
-
-
       # - name: Add to README
       #   run: |
-      #     # ADJUST HERE: If the action runs in the '.github' repo, use just 'README.md'
-      #     readme="README.md"
+      #     readme="profile/README.md"
 
       #     if [ ! -f "$readme" ]; then
       #       echo "Error: The file $readme was not found!"
       #       exit 1
       #     fi
 
-      #     # get SHA256 before
-      #     beforeHash=$(sha256sum $readme | awk '{ print $1 }')
+      #     # 1. Clean Windows line endings (\r)
+      #     sed -i 's/\r$//' $readme
 
-      #     # Define start and end markers
-      #     startMarker="<!-- start organization badges -->"
-      #     endMarker="<!-- end organization badges -->"
-
+      #     # 2. Get the generated badges
       #     replacement="${{ steps.organization-readme-badge-generator.outputs.badges }}"
 
-      #     # Escape special characters in the replacement text
-      #     replacementEscaped=$(printf '%s\n' "$replacement" | perl -pe 's/([\\\/\$\(\)@])/\\$1/g')
+      #     # 3. Rebuild the file by injecting the badges between the markers
+      #     awk -v repl="$replacement" '
+      #       /<!-- start organization badges -->/ { print; print repl; flag=1; next }
+      #       /<!-- end organization badges -->/ { flag=0 }
+      #       !flag
+      #     ' "$readme" > temp_readme.md
 
-      #     # Use perl to replace the text between the markers
-      #     perl -i -pe "BEGIN{undef $/;} s/\Q$startMarker\E.*?\Q$endMarker\E/$startMarker\n$replacementEscaped\n$endMarker/smg" $readme
+      #     mv temp_readme.md "$readme"
 
-      #     # get SHA256 after
-      #     afterHash=$(sha256sum $readme | awk '{ print $1 }')
+      #     # 4. Configure Git, commit, and push ALWAYS
+      #     git config --global user.name 'github-actions[bot]'
+      #     git config --global user.email 'github-actions[bot]@://github.com'
+      #     git add $readme
 
-      #     # Compare the hashes and commit if required
-      #     if [ "$afterHash" = "$beforeHash" ]; then
-      #       echo "The hashes are equal - exiting script"
-      #       exit 0
-      #     else
-      #       git config --global user.name 'github-actions[bot]'
-      #       git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-      #       git add $readme
-      #       git commit -m "docs: update organization readme badges"
-      #       git push
-      #     fi
+      #     # The '|| true' prevents the Action from failing if Git thinks there are no textual changes
+      #     git commit -m "docs: update organization readme badges" || true
+      #     git push
