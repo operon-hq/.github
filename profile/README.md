@@ -3,7 +3,9 @@
 ---
 
 <!-- start organization badges -->
-![Total repositories](https://img.shields.io/badge/Total%20repositories-18-blue?labelColor=333) ![PRs created in last 30 days](https://img.shields.io/badge/PRs%20created%20in%20last%2030%20days-50-blue?labelColor=333) ![Merged PRs in last 30 days](https://img.shields.io/badge/Merged%20PRs%20in%20last%2030%20days-7-blue?labelColor=333)
+### Organization metrics
+
+![Total repositories](https://img.shields.io/badge/Total%20repositories-1-blue?labelColor=555) ![PRs created in last 30 days](https://img.shields.io/badge/PRs%20created%20in%20last%2030%20days-0-blue?labelColor=555) ![Merged PRs in last 30 days](https://img.shields.io/badge/Merged%20PRs%20in%20last%2030%20days-0-blue?labelColor=555) ![Merge rate](https://img.shields.io/badge/Merge%20rate-0%25-blue?labelColor=555) ![Open issues](https://img.shields.io/badge/Open%20issues-0-blue?labelColor=555) ![Releases](https://img.shields.io/badge/Releases-0-blue?labelColor=555) ![Contributors](https://img.shields.io/badge/Contributors-1-blue?labelColor=555) ![Stars](https://img.shields.io/badge/Stars-0-blue?labelColor=555) ![Forks](https://img.shields.io/badge/Forks-0-blue?labelColor=555) ![Default branches](https://img.shields.io/badge/Default%20branches-no%20checks-blue?labelColor=555) ![Updated](https://img.shields.io/badge/Updated-2026-09-16-blue?labelColor=555)
 <!-- end organization badges -->
 
 
