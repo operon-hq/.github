@@ -21,17 +21,29 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      # 2. Checkout configured with the GitHub App token
-      - uses: actions/checkout@v7
+      # 2. Checkout do repositório atual (onde estão as métricas / perfil)
+      - uses: actions/checkout@v4 # Nota: A versão mais recente estável é a v4. O v7 não existe oficialmente ainda.
         with:
           token: ${{ steps.app-token.outputs.token }}
 
+      # 3. Checkout do repositório PRIVADO da Action para uma pasta local
+      - name: Checkout Private Action
+        uses: actions/checkout@v4
+        with:
+          repository: operon-hq/action-organization-readme-badges
+          ref: v1.0.0-alpha # Substitui a tag que estava no 'uses'
+          token: ${{ steps.app-token.outputs.token }} # Usa o token do GitHub App para aceder ao repo privado
+          path: .github/actions/badge-generator # Descarrega para este caminho temporário
+
+      # 4. Executa a Action apontando para a pasta local onde foi descarregada
       - name: organization-readme-badge-generator
         id: badges
-        uses: operon-hq/action-organization-readme-badges@v1.0.0-alpha
+        uses: ./.github/actions/badge-generator # Aponta para o caminho local
         with:
           badges: repositories,prs-created,prs-merged,merge-rate,open-issues,releases,contributors,stars,forks,default-branch-status,updated
           section_title: Organization metrics
+
+      # 5. Push das alterações se houver modificações
       - if: steps.badges.outputs.changed == 'true'
         run: |
           git config user.name 'github-actions[bot]'
@@ -39,6 +51,7 @@ jobs:
           git add profile/README.md
           git commit -m 'docs: refresh metrics'
           git push
+
 
       # - name: organization-readme-badge-generator
       #   id: organization-readme-badge-generator
