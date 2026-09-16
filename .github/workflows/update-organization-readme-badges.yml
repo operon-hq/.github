@@ -21,17 +21,20 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      # 2. Checkout configured with the GitHub App token
-      - uses: actions/checkout@v7
+      # 2. Checkout do repositório atual usando a v4 estável
+      - uses: actions/checkout@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
 
+      # 3. Chamada DIRETA ao repositório privado da Action (Agora permitido!)
       - name: organization-readme-badge-generator
         id: badges
         uses: operon-hq/action-organization-readme-badges@v1.0.0-alpha
         with:
           badges: repositories,prs-created,prs-merged,merge-rate,open-issues,releases,contributors,stars,forks,default-branch-status,updated
           section_title: Organization metrics
+
+      # 4. Envio das alterações
       - if: steps.badges.outputs.changed == 'true'
         run: |
           git config user.name 'github-actions[bot]'
@@ -39,49 +42,3 @@ jobs:
           git add profile/README.md
           git commit -m 'docs: refresh metrics'
           git push
-
-      # - name: organization-readme-badge-generator
-      #   id: organization-readme-badge-generator
-      #   uses: joshjohanning/organization-readme-badge-generator@v2
-      #   with:
-      #     organization: ${{ github.repository_owner }}
-      #     token: ${{ steps.app-token.outputs.token }}
-      #     color: blue
-      #     label_color: 333
-
-      - name: Write to job summary
-        run: |
-          echo "${{ steps.organization-readme-badge-generator.outputs.badges }}" >> $GITHUB_STEP_SUMMARY
-
-      # - name: Add to README
-      #   run: |
-      #     readme="profile/README.md"
-
-      #     if [ ! -f "$readme" ]; then
-      #       echo "Error: The file $readme was not found!"
-      #       exit 1
-      #     fi
-
-      #     # 1. Clean Windows line endings (\r)
-      #     sed -i 's/\r$//' $readme
-
-      #     # 2. Get the generated badges
-      #     replacement="${{ steps.organization-readme-badge-generator.outputs.badges }}"
-
-      #     # 3. Rebuild the file by injecting the badges between the markers
-      #     awk -v repl="$replacement" '
-      #       /<!-- start organization badges -->/ { print; print repl; flag=1; next }
-      #       /<!-- end organization badges -->/ { flag=0 }
-      #       !flag
-      #     ' "$readme" > temp_readme.md
-
-      #     mv temp_readme.md "$readme"
-
-      #     # 4. Configure Git, commit, and push ALWAYS
-      #     git config --global user.name 'github-actions[bot]'
-      #     git config --global user.email 'github-actions[bot]@://github.com'
-      #     git add $readme
-
-      #     # The '|| true' prevents the Action from failing if Git thinks there are no textual changes
-      #     git commit -m "docs: update organization readme badges" || true
-      #     git push
