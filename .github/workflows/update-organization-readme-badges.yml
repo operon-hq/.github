@@ -2,43 +2,66 @@ name: Update Organization Readme Badges
 
 on:
   schedule:
-    - cron: '0 7 * * *' # runs daily at 07:00
+    - cron: '0 7 * * *' # runs daily at 07:00 UTC
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: update-organization-readme-badges
+  cancel-in-progress: false
 
 jobs:
   generate-badges:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Generate the token FIRST so that the checkout can use it
-      - uses: actions/create-github-app-token@v3
+      - name: Create GitHub App token
         id: app-token
+        uses: actions/create-github-app-token@v3
         with:
           client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      # 2. Checkout do repositório atual usando a v4 estável
-      - uses: actions/checkout@v4
+      - name: Checkout organization .github repository
+        uses: actions/checkout@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          path: organization-repository
 
-      # 3. Chamada DIRETA ao repositório privado da Action (Agora permitido!)
-      - name: organization-readme-badge-generator
-        id: badges
-        uses: operon-hq/action-organization-readme-badges@v1.0.0-alpha
+      - name: Checkout private badge action
+        uses: actions/checkout@v4
         with:
+          repository: operon-hq/action-organization-readme-badges
+          ref: v1.0.0-alpha
+          token: ${{ steps.app-token.outputs.token }}
+          path: private-actions/action-organization-readme-badges
+
+      - name: Generate organization README badges
+        id: badges
+        uses: ./private-actions/action-organization-readme-badges
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          organization: ${{ github.repository_owner }}
+          readme_path: organization-repository/profile/README.md
           badges: repositories,prs-created,prs-merged,merge-rate,open-issues,releases,contributors,stars,forks,default-branch-status,updated
           section_title: Organization metrics
 
-      # 4. Envio das alterações
-      - if: steps.badges.outputs.changed == 'true'
+      - name: Commit and push README changes
+        if: steps.badges.outputs.changed == 'true'
+        working-directory: organization-repository
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add profile/README.md
+
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+
           git commit -m 'docs: refresh metrics'
           git push
