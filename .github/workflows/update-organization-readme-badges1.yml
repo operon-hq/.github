@@ -48,9 +48,17 @@ jobs:
           organization: ${{ github.repository_owner }}
           readme_path: organization-repository/profile/README.md
           days: '365'
-          color: 2ea44f
+          color: f77be2
           label_color: 1f2937
           badges: repositories,prs-created,prs-merged,merge-rate,open-issues
+          labels: >-
+            {
+              "repositories":"Repositorios",
+              "prs-created":"PRs creados",
+              "prs-merged":"PRs mergeados",
+              "merge-rate":"Tasa de merge",
+              "open-issues":"Issues abiertas"
+            }
           section_title: Organization metrics
 
       - name: Commit and push README changes
