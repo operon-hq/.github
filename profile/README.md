@@ -5,7 +5,7 @@
 <!-- start organization badges -->
 ### Organization metrics
 
-![Total repositories](https://img.shields.io/badge/Total%20repositories-18-2ea44f?labelColor=1f2937) ![PRs created in last 365 days](https://img.shields.io/badge/PRs%20created%20in%20last%20365%20days-61-2ea44f?labelColor=1f2937) ![Merged PRs in last 365 days](https://img.shields.io/badge/Merged%20PRs%20in%20last%20365%20days-7-2ea44f?labelColor=1f2937) ![Merge rate](https://img.shields.io/badge/Merge%20rate-11.5%25-2ea44f?labelColor=1f2937) ![Open issues](https://img.shields.io/badge/Open%20issues-2-2ea44f?labelColor=1f2937)
+![Repositorios](https://img.shields.io/badge/Repositorios-18-f77be2?labelColor=1f2937) ![PRs creados](https://img.shields.io/badge/PRs%20creados-61-f77be2?labelColor=1f2937) ![PRs mergeados](https://img.shields.io/badge/PRs%20mergeados-7-f77be2?labelColor=1f2937) ![Tasa de merge](https://img.shields.io/badge/Tasa%20de%20merge-11.5%25-f77be2?labelColor=1f2937) ![Issues abiertas](https://img.shields.io/badge/Issues%20abiertas-2-f77be2?labelColor=1f2937)
 <!-- end organization badges -->
 
 
